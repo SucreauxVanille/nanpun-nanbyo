@@ -7,15 +7,16 @@
     body {
       font-family: sans-serif;
       text-align: center;
-      margin-top: 50px;
+      margin: 30px;
     }
     .fraction {
       display: inline-block;
       vertical-align: middle;
       text-align: center;
+      font-size: 24px;
     }
     .fraction .top {
-      border-bottom: 1px solid black;
+      border-bottom: 2px solid black;
     }
     .fraction .bottom {
       margin-top: -4px;
@@ -24,39 +25,82 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 6px;
+      font-size: 28px;
+    }
+    input[type="number"] {
+      font-size: 24px;
+      padding: 10px;
+      width: 150px;
+      margin-top: 10px;
+    }
+    button {
+      font-size: 20px;
+      padding: 10px 20px;
+      margin: 10px;
+    }
+    h1 {
+      font-size: 32px;
+    }
+    #question {
+      font-size: 24px;
+      margin: 20px;
+    }
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 22px;
     }
   </style>
 </head>
 <body>
 
   <h1>何分何秒君</h1>
-  <div id="question" style="font-size: 24px; margin: 20px;"></div>
+  <div id="question"></div>
 
-  <input type="number" id="answer" placeholder="秒数を入力" />
+  <input type="number" id="answer" placeholder="分数を入力" />
+  <br />
   <button onclick="checkAnswer()">答える</button>
-
-  <div id="result" style="margin-top: 20px; font-weight: bold;"></div>
   <button onclick="generateQuestion()">次の問題</button>
+
+  <div id="result"></div>
 
   <script>
     let correctAnswer = 0;
+    let currentMode = 'hour-to-min';
+
+    // 最大公約数で約分
+    function gcd(a, b) {
+      return b === 0 ? a : gcd(b, a % b);
+    }
+
+    function simplifyFraction(numerator, denominator) {
+      const divisor = gcd(numerator, denominator);
+      return {
+        numerator: numerator / divisor,
+        denominator: denominator / divisor
+      };
+    }
 
     function getRandomFraction() {
       const denominators = [2, 3, 4, 5, 6, 8, 10];
       const denominator = denominators[Math.floor(Math.random() * denominators.length)];
       const numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
-      return { numerator, denominator };
+      return simplifyFraction(numerator, denominator);
     }
 
     function generateQuestion() {
       document.getElementById('result').textContent = '';
       document.getElementById('answer').value = '';
 
-      const whole = Math.floor(Math.random() * 3) + 1; // 1～3分
+      // ランダムで 1〜2 時間
+      const whole = Math.floor(Math.random() * 2) + 1;
       const frac = getRandomFraction();
+
+      // 答えは自然数の分（整数）
       correctAnswer = Math.round((whole + frac.numerator / frac.denominator) * 60);
 
+      // 帯分数のHTML表示
       const mixedHtml = `
         <div class="mixed">
           <span>${whole}</span>
@@ -67,7 +111,7 @@
         </div>
       `;
 
-      document.getElementById('question').innerHTML = `${mixedHtml} 分 は何秒？`;
+      document.getElementById('question').innerHTML = `${mixedHtml} 時間 は何分？`;
     }
 
     function checkAnswer() {
@@ -77,12 +121,12 @@
         result.textContent = '正解！ 🎉';
         result.style.color = 'green';
       } else {
-        result.textContent = `不正解。正解は ${correctAnswer} 秒です。`;
+        result.textContent = `不正解。正解は ${correctAnswer} 分です。`;
         result.style.color = 'red';
       }
     }
 
-    // 初回読み込み時の問題
+    // 初回読み込み
     generateQuestion();
   </script>
 
