@@ -32,8 +32,6 @@
     .fraction-display .numerator {
       border-bottom: 1px solid #000;
     }
-    .fraction-display .denominator {
-    }
     .answer-section {
       margin-top: 20px;
     }
@@ -49,18 +47,30 @@
       align-items: center;
     }
     .fraction-input input {
-      width: 80px;
+      width: 100px;
       font-size: 24px;
       text-align: center;
     }
     .input {
       font-size: 24px;
-      width: 80px;
+      width: 100px;
       text-align: center;
     }
     .result {
       margin-top: 20px;
-      font-size: 20px;
+      font-size: 26px;
+      font-weight: bold;
+    }
+    .correct {
+      color: green;
+    }
+    .incorrect {
+      color: red;
+    }
+    .answer-button {
+      font-size: 24px;
+      padding: 12px 30px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -94,6 +104,7 @@
       let questionText = '';
       let answer;
       document.getElementById('result').textContent = '';
+      document.getElementById('result').className = '';
 
       if (type === 'minToSec') {
         const minutes = Math.floor(Math.random() * 10 + 1);
@@ -133,7 +144,7 @@
     function showIntegerInput() {
       document.getElementById('answerSection').innerHTML = `
         <input id="intInput" type="number" class="input" autofocus>
-        <button onclick="checkAnswer()">答える</button>
+        <button onclick="checkAnswer()" class="answer-button">答える！</button>
       `;
     }
 
@@ -143,11 +154,11 @@
           <input id="wholeInput" type="number" placeholder="整数" class="input">
           <div class="fraction-input">
             <input id="numInput" type="number" placeholder="分子" class="input">
-            <span style="border-bottom: 1px solid #000; width: 80px;"></span>
+            <span style="border-bottom: 1px solid #000; width: 100px;"></span>
             <input id="denInput" type="number" placeholder="分母" class="input">
           </div>
         </div>
-        <button onclick="checkAnswer()">答える</button>
+        <button onclick="checkAnswer()" class="answer-button">答える！</button>
       `;
       setTimeout(() => document.getElementById('wholeInput').focus(), 100);
 
@@ -176,7 +187,14 @@
         correct = (w === currentAnswer.whole && num === currentAnswer.num && den === currentAnswer.den);
       }
 
-      document.getElementById('result').textContent = correct ? '正解！' : `ちがうよ。正解は ${formatAnswer(currentAnswer)} だよ。`;
+      const resultElement = document.getElementById('result');
+      if (correct) {
+        resultElement.textContent = '🎉 正解！ 🎉';
+        resultElement.className = 'result correct';
+      } else {
+        resultElement.textContent = `ちがうよ。正解は ${formatAnswer(currentAnswer)} だよ。`;
+        resultElement.className = 'result incorrect';
+      }
     }
 
     function formatAnswer(ans) {
