@@ -1,134 +1,175 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>何分何秒君</title>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      margin: 30px;
-    }
-    .fraction {
-      display: inline-block;
-      vertical-align: middle;
-      text-align: center;
-      font-size: 24px;
-    }
-    .fraction .top {
-      border-bottom: 2px solid black;
-    }
-    .fraction .bottom {
-      margin-top: -4px;
-    }
-    .mixed {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      font-size: 28px;
-    }
-    input[type="number"] {
-      font-size: 24px;
-      padding: 10px;
-      width: 150px;
-      margin-top: 10px;
-    }
-    button {
-      font-size: 20px;
-      padding: 10px 20px;
-      margin: 10px;
-    }
-    h1 {
-      font-size: 32px;
+      padding: 20px;
     }
     #question {
       font-size: 24px;
-      margin: 20px;
+      margin: 20px 0;
     }
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
-      font-size: 22px;
+    input {
+      font-size: 24px;
+      padding: 10px;
+      width: 100px;
+      margin: 5px;
+    }
+    button {
+      font-size: 24px;
+      padding: 10px 20px;
+      margin: 10px;
+    }
+    .mixed-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-
   <h1>何分何秒君</h1>
+
+  <div>
+    <button onclick="setMode('hour-to-min')">時間 → 分</button>
+    <button onclick="setMode('sec-to-min')">秒 → 分</button>
+    <button onclick="setMode('min-to-hour')">分 → 時間</button>
+    <button onclick="setMode('min-to-sec')">分 → 秒</button>
+  </div>
+
   <div id="question"></div>
 
-  <input type="number" id="answer" placeholder="分数を入力" />
-  <br />
-  <button onclick="checkAnswer()">答える</button>
-  <button onclick="generateQuestion()">次の問題</button>
+  <input type="number" id="single-answer" placeholder="答え" />
 
-  <div id="result"></div>
+  <div id="mixed-answer" class="mixed-inputs" style="display: none;">
+    <input type="number" id="int-part" placeholder="整数" />
+    <input type="number" id="numerator" placeholder="分子" />
+    <input type="number" id="denominator" placeholder="分母" />
+  </div>
+
+  <div>
+    <button onclick="checkAnswer()">答える</button>
+    <button onclick="nextQuestion()">次の問題</button>
+  </div>
+
+  <div id="feedback"></div>
 
   <script>
-    let correctAnswer = 0;
+    let currentAnswer = 0;
     let currentMode = 'hour-to-min';
 
-    // 最大公約数で約分
     function gcd(a, b) {
       return b === 0 ? a : gcd(b, a % b);
     }
 
     function simplifyFraction(numerator, denominator) {
-      const divisor = gcd(numerator, denominator);
-      return {
-        numerator: numerator / divisor,
-        denominator: denominator / divisor
-      };
+      const g = gcd(numerator, denominator);
+      return [numerator / g, denominator / g];
     }
 
-    function getRandomFraction() {
-      const denominators = [2, 3, 4, 5, 6, 8, 10];
-      const denominator = denominators[Math.floor(Math.random() * denominators.length)];
-      const numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
-      return simplifyFraction(numerator, denominator);
+    function setMode(mode) {
+      currentMode = mode;
+      nextQuestion();
     }
 
-    function generateQuestion() {
-      document.getElementById('result').textContent = '';
-      document.getElementById('answer').value = '';
+    function nextQuestion() {
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('single-answer').value = '';
+      document.getElementById('int-part').value = '';
+      document.getElementById('numerator').value = '';
+      document.getElementById('denominator').value = '';
 
-      // ランダムで 1〜2 時間
-      const whole = Math.floor(Math.random() * 2) + 1;
-      const frac = getRandomFraction();
+      if (currentMode === 'hour-to-min') {
+        toggleInputMode(false);
+        const hours = Math.floor(Math.random() * 3) + 1;
+        const mins = Math.floor(Math.random() * 60);
+        document.getElementById('question').innerHTML = `
+          <div><span style="font-size: 36px;">${hours}時間${mins}分 は何分？</span></div>`;
+        currentAnswer = hours * 60 + mins;
 
-      // 答えは自然数の分（整数）
-      correctAnswer = Math.round((whole + frac.numerator / frac.denominator) * 60);
+      } else if (currentMode === 'min-to-sec') {
+        toggleInputMode(false);
+        const whole = Math.floor(Math.random() * 4) + 1;
+        const denominator = [2, 3, 4, 5][Math.floor(Math.random() * 4)];
+        const numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
+        const [simpNum, simpDen] = simplifyFraction(numerator, denominator);
+        document.getElementById('question').innerHTML =
+          `<div style="font-size: 36px;">
+            ${whole}<span style="display:inline-block; text-align:center;">
+            <div>${simpNum}</div><hr style="margin:0;"/><div>${simpDen}</div></span>分 は何秒？
+          </div>`;
+        currentAnswer = Math.round((whole + simpNum / simpDen) * 60);
 
-      // 帯分数のHTML表示
-      const mixedHtml = `
-        <div class="mixed">
-          <span>${whole}</span>
-          <span class="fraction">
-            <div class="top">${frac.numerator}</div>
-            <div class="bottom">${frac.denominator}</div>
-          </span>
-        </div>
-      `;
+      } else if (currentMode === 'sec-to-min') {
+        toggleInputMode(true);
+        const denominator = [2, 3, 4, 5][Math.floor(Math.random() * 4)];
+        const numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
+        const whole = Math.floor(Math.random() * 4);
+        const [simpNum, simpDen] = simplifyFraction(numerator, denominator);
+        const totalSeconds = (whole + simpNum / simpDen) * 60;
+        document.getElementById('question').innerHTML =
+          `<div style="font-size: 36px;">${Math.round(totalSeconds)}秒 は何分？</div>`;
+        currentAnswer = whole + simpNum / simpDen;
 
-      document.getElementById('question').innerHTML = `${mixedHtml} 時間 は何分？`;
-    }
-
-    function checkAnswer() {
-      const userInput = parseInt(document.getElementById('answer').value);
-      const result = document.getElementById('result');
-      if (userInput === correctAnswer) {
-        result.textContent = '正解！ 🎉';
-        result.style.color = 'green';
-      } else {
-        result.textContent = `不正解。正解は ${correctAnswer} 分です。`;
-        result.style.color = 'red';
+      } else if (currentMode === 'min-to-hour') {
+        toggleInputMode(true);
+        const denominator = [2, 3, 4, 5][Math.floor(Math.random() * 4)];
+        const numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
+        const whole = Math.floor(Math.random() * 4);
+        const [simpNum, simpDen] = simplifyFraction(numerator, denominator);
+        const totalMinutes = (whole + simpNum / simpDen) * 60;
+        document.getElementById('question').innerHTML =
+          `<div style="font-size: 36px;">${Math.round(totalMinutes)}分 は何時間？</div>`;
+        currentAnswer = whole + simpNum / simpDen;
       }
     }
 
-    // 初回読み込み
-    generateQuestion();
-  </script>
+    function toggleInputMode(isMixed) {
+      document.getElementById('single-answer').style.display = isMixed ? 'none' : 'inline-block';
+      document.getElementById('mixed-answer').style.display = isMixed ? 'flex' : 'none';
+    }
 
+    function checkAnswer() {
+      let userAnswer;
+      if (document.getElementById('single-answer').style.display !== 'none') {
+        userAnswer = parseInt(document.getElementById('single-answer').value, 10);
+      } else {
+        const intPart = parseInt(document.getElementById('int-part').value || 0, 10);
+        const num = parseInt(document.getElementById('numerator').value || 0, 10);
+        const den = parseInt(document.getElementById('denominator').value || 1, 10);
+        if (den === 0) {
+          document.getElementById('feedback').textContent = '分母は0にできません';
+          return;
+        }
+        userAnswer = intPart + num / den;
+      }
+
+      const isCorrect = Math.abs(userAnswer - currentAnswer) < 0.01;
+      document.getElementById('feedback').textContent = isCorrect ? '正解！' : `不正解（正解: ${currentAnswer.toFixed(2)}）`;
+    }
+
+    // Enterキーで自動フォーカス移動
+    ['int-part', 'numerator', 'denominator'].forEach((id, i, arr) => {
+      const el = document.getElementById(id);
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          if (i < arr.length - 1) {
+            document.getElementById(arr[i + 1]).focus();
+          } else {
+            checkAnswer();
+          }
+        }
+      });
+    });
+
+    // 初期問題
+    nextQuestion();
+  </script>
 </body>
 </html>
