@@ -49,7 +49,14 @@
       align-items: center;
     }
     .fraction-input input {
-      width: 60px;
+      width: 80px;
+      font-size: 24px;
+      text-align: center;
+    }
+    .input {
+      font-size: 24px;
+      width: 80px;
+      text-align: center;
     }
     .result {
       margin-top: 20px;
@@ -89,21 +96,19 @@
       document.getElementById('result').textContent = '';
 
       if (type === 'minToSec') {
-        const minutes = Math.floor(Math.random() * 10 + 1); // 1〜10分
+        const minutes = Math.floor(Math.random() * 10 + 1);
         questionText = `${minutes}分は何秒？`;
         answer = minutes * 60;
         showIntegerInput();
 
       } else if (type === 'hourToMin') {
-        const hours = Math.floor(Math.random() * 3 + 1); // 1〜3時間
+        const hours = Math.floor(Math.random() * 3 + 1);
         questionText = `${hours}時間は何分？`;
         answer = hours * 60;
         showIntegerInput();
 
       } else if (type === 'secToMin') {
-        const minutes = Math.floor(Math.random() * 4 + 1); // 1〜4分の範囲
-        const seconds = Math.floor(Math.random() * 60); // 0〜59秒
-        const totalSeconds = minutes * 60 + seconds;
+        const totalSeconds = (Math.floor(Math.random() * 4 + 1)) * 60 + [15, 20, 30, 45][Math.floor(Math.random() * 4)];
         questionText = `${totalSeconds}秒は何分？`;
         const whole = Math.floor(totalSeconds / 60);
         const remainder = totalSeconds % 60;
@@ -112,9 +117,7 @@
         showFractionInput();
 
       } else if (type === 'minToHour') {
-        const hours = Math.floor(Math.random() * 2); // 0 or 1時間
-        const minutes = Math.floor(Math.random() * 60); // 0〜59分
-        const totalMinutes = hours * 60 + minutes;
+        const totalMinutes = (Math.floor(Math.random() * 2)) * 60 + [15, 20, 30, 45][Math.floor(Math.random() * 4)];
         questionText = `${totalMinutes}分は何時間？`;
         const whole = Math.floor(totalMinutes / 60);
         const remainder = totalMinutes % 60;
@@ -140,7 +143,7 @@
           <input id="wholeInput" type="number" placeholder="整数" class="input">
           <div class="fraction-input">
             <input id="numInput" type="number" placeholder="分子" class="input">
-            <span style="border-bottom: 1px solid #000; width: 60px;"></span>
+            <span style="border-bottom: 1px solid #000; width: 80px;"></span>
             <input id="denInput" type="number" placeholder="分母" class="input">
           </div>
         </div>
@@ -148,7 +151,6 @@
       `;
       setTimeout(() => document.getElementById('wholeInput').focus(), 100);
 
-      // Enterで次の欄に移動
       document.getElementById('wholeInput').addEventListener('keydown', e => {
         if (e.key === 'Enter') document.getElementById('numInput').focus();
       });
