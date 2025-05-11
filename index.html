@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>何分何秒君</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    .fraction {
+      display: inline-block;
+      vertical-align: middle;
+      text-align: center;
+    }
+    .fraction .top {
+      border-bottom: 1px solid black;
+    }
+    .fraction .bottom {
+      margin-top: -4px;
+    }
+    .mixed {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>何分何秒君</h1>
+  <div id="question" style="font-size: 24px; margin: 20px;"></div>
+
+  <input type="number" id="answer" placeholder="秒数を入力" />
+  <button onclick="checkAnswer()">答える</button>
+
+  <div id="result" style="margin-top: 20px; font-weight: bold;"></div>
+  <button onclick="generateQuestion()">次の問題</button>
+
+  <script>
+    let correctAnswer = 0;
+
+    function getRandomFraction() {
+      const denominators = [2, 3, 4, 5, 6, 8, 10];
+      const denominator = denominators[Math.floor(Math.random() * denominators.length)];
+      const numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
+      return { numerator, denominator };
+    }
+
+    function generateQuestion() {
+      document.getElementById('result').textContent = '';
+      document.getElementById('answer').value = '';
+
+      const whole = Math.floor(Math.random() * 3) + 1; // 1～3分
+      const frac = getRandomFraction();
+      correctAnswer = Math.round((whole + frac.numerator / frac.denominator) * 60);
+
+      const mixedHtml = `
+        <div class="mixed">
+          <span>${whole}</span>
+          <span class="fraction">
+            <div class="top">${frac.numerator}</div>
+            <div class="bottom">${frac.denominator}</div>
+          </span>
+        </div>
+      `;
+
+      document.getElementById('question').innerHTML = `${mixedHtml} 分 は何秒？`;
+    }
+
+    function checkAnswer() {
+      const userInput = parseInt(document.getElementById('answer').value);
+      const result = document.getElementById('result');
+      if (userInput === correctAnswer) {
+        result.textContent = '正解！ 🎉';
+        result.style.color = 'green';
+      } else {
+        result.textContent = `不正解。正解は ${correctAnswer} 秒です。`;
+        result.style.color = 'red';
+      }
+    }
+
+    // 初回読み込み時の問題
+    generateQuestion();
+  </script>
+
+</body>
+</html>
