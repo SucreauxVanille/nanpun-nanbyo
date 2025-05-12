@@ -196,7 +196,7 @@
         resultText.innerHTML = `🎉 <span style="color: green; font-size: 24px; font-weight: bold;">正解！</span> 現在 <strong>${correctStreak}</strong> 問連続正解中！`;
       } else {
         correctStreak = 0;
-        resultText.textContent = `ちがうよ。正解は ${formatAnswer(currentAnswer)} だよ。`;
+        resultText.textContent = `残念。正解は ${formatAnswer(currentAnswer)} だよ。`;
       }
     }
 
