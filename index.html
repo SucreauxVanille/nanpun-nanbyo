@@ -14,7 +14,7 @@
 <body>
 
   <h1>何分何秒君</h1>
-  <button id="generateBtn" onclick="generateRandomQuestion()">問題を出す</button>
+  <button onclick="generateRandomQuestion()">問題を出す</button>
   <div id="question"></div>
   <input type="text" id="answerInput" placeholder="答えを入力">
   <button onclick="checkAnswer()">こたえあわせ</button>
@@ -23,64 +23,53 @@
   <script>
     let currentAnswer;
     let streak = 0;
-    let questionCount = 0;
-    const maxQuestions = 20;
 
     function generateRandomQuestion() {
-      if (questionCount >= maxQuestions) {
-        document.getElementById('question').textContent = 'おしまい！よくがんばったね！';
-        document.getElementById('generateBtn').disabled = true;
-        return;
-      }
-
       const type = Math.floor(Math.random() * 4);
       generateQuestion(type);
       document.getElementById('result').textContent = '';
       document.getElementById('answerInput').value = '';
       document.getElementById('answerInput').focus();
-      questionCount++;
     }
 
     function generateQuestion(type) {
       let a, b, questionText;
-
       switch (type) {
-        case 0: // 秒→分（割り切れる秒）
-          a = Math.floor(Math.random() * 10 + 1);
-          currentAnswer = a;
-          questionText = `${a * 60}秒は何分？`;
+        case 0: // 秒→分
+          a = Math.floor(Math.random() * 4 + 1); // 分の部分
+          b = Math.floor(Math.random() * 60); // 端数
+          currentAnswer = ((60 * a) + b) / 60;
+          questionText = `${60 * a + b}秒は何分？`;
           break;
-
-        case 1: // 分→秒（端数含む）
-          a = Math.floor(Math.random() * 5 + 1); // 1〜5分
-          b = Math.floor(Math.random() * 4) * 15; // 0,15,30,45秒 → 15秒単位
+        case 1: // 分→秒
+          a = Math.floor(Math.random() * 4 + 1); // 分の部分
+          b = Math.floor(Math.random() * 60); // 端数
           currentAnswer = 60 * a + b;
           questionText = b === 0 ? `${a}分は何秒？` : `${a}分${b}秒は何秒？`;
           break;
-
-        case 2: // 分→時間（割り切れる分）
-          a = Math.floor(Math.random() * 5 + 1); // 時間に変換できる
-          currentAnswer = a;
-          questionText = `${a * 60}分は何時間？`;
+        case 2: // 分→時間
+          a = Math.floor(Math.random() * 4 + 1); // 時の部分
+          b = Math.floor(Math.random() * 60); // 端数
+          currentAnswer = ((60 * a) + b) / 60;
+          questionText = `${60 * a + b}分は何時間？`;
           break;
-
-        case 3: // 時間→分（端数含む）
-          a = Math.floor(Math.random() * 3 + 1); // 1〜3時間
-          b = Math.floor(Math.random() * 4) * 15; // 0,15,30,45分 → 15分単位
+        case 3: // 時間→分
+          a = Math.floor(Math.random() * 4 + 1); // 時間
+          b = Math.floor(Math.random() * 60); // 端数
           currentAnswer = 60 * a + b;
           questionText = b === 0 ? `${a}時間は何分？` : `${a}時間${b}分は何分？`;
           break;
       }
-
-      document.getElementById('question').textContent = `第${questionCount + 1}問： ${questionText}`;
+      document.getElementById('question').textContent = questionText;
     }
 
     function checkAnswer() {
       const input = document.getElementById('answerInput').value.trim();
-      const userAnswer = parseInt(input, 10);
+      const userAnswer = parseFloat(input);
+      const isCorrect = !isNaN(userAnswer) && Math.abs(userAnswer - currentAnswer) < 0.01;
       const result = document.getElementById('result');
 
-      if (userAnswer === currentAnswer) {
+      if (isCorrect) {
         streak++;
         result.textContent = `正解！ 現在 ${streak} 問連続正解中！`;
       } else {
