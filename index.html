@@ -174,20 +174,22 @@
     }
 
     function displayCorrectAnswer() {
-      if (typeof currentAnswer === 'number') {
-        return `${currentAnswer}`;
-      } else if (currentAnswer.num === 0) {
-        return `${currentAnswer.whole}`;
-      } else {
-        return `
-          <div class="fraction-display">
-            <div>${currentAnswer.whole}</div>
-            <div class="numerator">${currentAnswer.num}</div>
-            <div>${currentAnswer.den}</div>
-          </div>
-        `;
-      }
-    }
+  if (typeof currentAnswer === 'number') {
+    return `${currentAnswer}`;
+  } else if (currentAnswer.num === 0) {
+    return `${currentAnswer.whole}`;
+  } else {
+    return `
+      <span>
+        ${currentAnswer.whole}
+        <table style="display:inline-table; vertical-align:middle; font-size:inherit;">
+          <tr><td style="text-align:center; border-bottom:1px solid black;">${currentAnswer.num}</td></tr>
+          <tr><td style="text-align:center;">${currentAnswer.den}</td></tr>
+        </table>
+      </span>
+    `;
+  }
+}
 
     function checkAnswer() {
       let correct = false;
