@@ -14,10 +14,13 @@
       font-size: 24px;
       margin: 20px 0;
     }
-    .button-container button {
+    .button-container button,
+    .answer-section button {
       font-size: 20px;
-      padding: 10px 20px;
-      margin: 5px;
+      padding: 12px 24px;
+      margin: 10px;
+      width: 80%;
+      max-width: 300px;
     }
     .input-container input {
       font-size: 24px;
@@ -98,22 +101,22 @@
       document.getElementById('result').textContent = '';
 
       if (type === 'minToSec') {
-        const m = Math.floor(Math.random() * 9) + 1; // 1から9分
-        const s = [15, 20, 30, 45][Math.floor(Math.random() * 4)]; // 15, 20, 30, 45秒のいずれか
+        const m = Math.floor(Math.random() * 9) + 1;
+        const s = [15, 20, 30, 45][Math.floor(Math.random() * 4)];
         questionText = `${m}分${s}秒は何秒？`;
         answer = m * 60 + s;
         showIntegerInput();
 
       } else if (type === 'hourToMin') {
-        const h = Math.floor(Math.random() * 2) + 1; // 1から2時間
-        const m = [15, 20, 30, 45][Math.floor(Math.random() * 4)]; // 15, 20, 30, 45分のいずれか
+        const h = Math.floor(Math.random() * 2) + 1;
+        const m = [15, 20, 30, 45][Math.floor(Math.random() * 4)];
         questionText = `${h}時間${m}分は何分？`;
         answer = h * 60 + m;
         showIntegerInput();
 
       } else if (type === 'secToMin') {
-        const m = Math.floor(Math.random() * 9) + 1; // 1から9分
-        const s = [15, 20, 30, 45][Math.floor(Math.random() * 4)]; // 15, 20, 30, 45秒のいずれか
+        const m = Math.floor(Math.random() * 9) + 1;
+        const s = [15, 20, 30, 45][Math.floor(Math.random() * 4)];
         const totalSeconds = m * 60 + s;
         questionText = `${totalSeconds}秒は何分？`;
         const whole = Math.floor(totalSeconds / 60);
@@ -123,8 +126,8 @@
         showFractionInput(answer.num !== 0);
 
       } else if (type === 'minToHour') {
-        const h = Math.floor(Math.random() * 2) + 1; // 1から2時間
-        const m = [15, 20, 30, 45][Math.floor(Math.random() * 4)]; // 15, 20, 30, 45分のいずれか
+        const h = Math.floor(Math.random() * 2) + 1;
+        const m = [15, 20, 30, 45][Math.floor(Math.random() * 4)];
         const totalMinutes = h * 60 + m;
         questionText = `${totalMinutes}分は何時間？`;
         const whole = Math.floor(totalMinutes / 60);
@@ -141,7 +144,7 @@
     function showIntegerInput() {
       document.getElementById('answerSection').innerHTML = `
         <input id="intInput" type="number" class="input" autofocus>
-        <button onclick="checkAnswer()">答える！</button>
+        <br><button onclick="checkAnswer()">答える！</button>
       `;
     }
 
@@ -149,67 +152,49 @@
       if (!showFractionPart) {
         document.getElementById('answerSection').innerHTML = `
           <input id="wholeInput" type="number" class="input" autofocus>
-          <button onclick="checkAnswer()">答える！</button>
+          <br><button onclick="checkAnswer()">答える！</button>
         `;
         return;
       }
 
-      document.getElementById('answerSection').inner
+      document.getElementById('answerSection').innerHTML = `
         <div class="mixed-input">
-          <input id="wholeInput" type="number" placeholder="整数" class="input">
+          <input id="wholeInput" type="number" class="input">
           <div class="fraction-input">
-            <input id="numInput" type="number" placeholder="分子" class="input">
-            <span style="border-bottom: 1px solid #000; width: 80px;"></span>
-            <input id="denInput" type="number" placeholder="分母" class="input">
+            <input id="numeratorInput" type="number" placeholder="分子">
+            <input id="denominatorInput" type="number" placeholder="分母">
           </div>
         </div>
-        <button onclick="checkAnswer()">答える！</button>
+        <br><button onclick="checkAnswer()">答える！</button>
       `;
-
-      setTimeout(() => document.getElementById('wholeInput').focus(), 100);
-      document.getElementById('wholeInput').addEventListener('keydown', e => {
-        if (e.key === 'Enter') document.getElementById('numInput').focus();
-      });
-      document.getElementById('numInput').addEventListener('keydown', e => {
-        if (e.key === 'Enter') document.getElementById('denInput').focus();
-      });
-      document.getElementById('denInput').addEventListener('keydown', e => {
-        if (e.key === 'Enter') checkAnswer();
-      });
     }
 
     function checkAnswer() {
       let correct = false;
 
       if (typeof currentAnswer === 'number') {
-        const userAnswer = parseInt(document.getElementById('intInput').value);
-        correct = userAnswer === currentAnswer;
+        const input = parseInt(document.getElementById('intInput').value, 10);
+        correct = input === currentAnswer;
       } else {
-        const w = parseInt(document.getElementById('wholeInput').value) || 0;
-        const n = parseInt(document.getElementById('numInput')?.value) || 0;
-        const d = parseInt(document.getElementById('denInput')?.value) || 1;
-        const [num, den] = simplifyFraction(n, d);
-        correct = (w === currentAnswer.whole && num === currentAnswer.num && den === currentAnswer.den);
+        const whole = parseInt(document.getElementById('wholeInput').value, 10);
+        if (currentAnswer.num === 0) {
+          correct = whole === currentAnswer.whole;
+        } else {
+          const numerator = parseInt(document.getElementById('numeratorInput').value, 10);
+          const denominator = parseInt(document.getElementById('denominatorInput').value, 10);
+          const [simpNum, simpDen] = simplifyFraction(numerator, denominator);
+          correct = (whole === currentAnswer.whole && simpNum === currentAnswer.num && simpDen === currentAnswer.den);
+        }
       }
 
       const resultText = document.getElementById('result');
       if (correct) {
+        resultText.textContent = '正解！';
         correctStreak++;
-        resultText.innerHTML = `🎉 <span style="color: green; font-size: 24px; font-weight: bold;">正解！</span> 現在 <strong>${correctStreak}</strong> 問連続正解中！`;
       } else {
+        resultText.textContent = '不正解！';
         correctStreak = 0;
-        resultText.textContent = `ちがうよ。正解は ${formatAnswer(currentAnswer)} だよ。`;
       }
-    }
-
-    function formatAnswer(ans) {
-      if (typeof ans === 'number') return `${ans}秒`;
-      if (ans.num === 0) return `${ans.whole}`;
-      return `<span class="fraction-display">
-                <div>${ans.whole}</div>
-                <div class="numerator">${ans.num}</div>
-                <div>${ans.den}</div>
-              </span>`;
     }
   </script>
 </body>
