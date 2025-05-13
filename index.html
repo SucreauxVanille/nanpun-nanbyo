@@ -94,6 +94,10 @@
       generateQuestion(randomType);
     }
 
+    function getRandomMinuteOrSecond() {
+      return Math.floor(Math.random() * 59) + 1; // 1~59
+    }
+
     function generateQuestion(type) {
       currentType = type;
       let questionText = '';
@@ -102,21 +106,21 @@
 
       if (type === 'minToSec') {
         const m = Math.floor(Math.random() * 9) + 1;
-        const s = [15, 20, 30, 45][Math.floor(Math.random() * 4)];
+        const s = getRandomMinuteOrSecond();
         questionText = `${m}分${s}秒は何秒？`;
         answer = m * 60 + s;
         showIntegerInput();
 
       } else if (type === 'hourToMin') {
         const h = Math.floor(Math.random() * 2) + 1;
-        const m = [15, 20, 30, 45][Math.floor(Math.random() * 4)];
+        const m = getRandomMinuteOrSecond();
         questionText = `${h}時間${m}分は何分？`;
         answer = h * 60 + m;
         showIntegerInput();
 
       } else if (type === 'secToMin') {
         const m = Math.floor(Math.random() * 9) + 1;
-        const s = [15, 20, 30, 45][Math.floor(Math.random() * 4)];
+        const s = getRandomMinuteOrSecond();
         const totalSeconds = m * 60 + s;
         questionText = `${totalSeconds}秒は何分？`;
         const whole = Math.floor(totalSeconds / 60);
@@ -127,7 +131,7 @@
 
       } else if (type === 'minToHour') {
         const h = Math.floor(Math.random() * 2) + 1;
-        const m = [15, 20, 30, 45][Math.floor(Math.random() * 4)];
+        const m = getRandomMinuteOrSecond();
         const totalMinutes = h * 60 + m;
         questionText = `${totalMinutes}分は何時間？`;
         const whole = Math.floor(totalMinutes / 60);
@@ -169,6 +173,22 @@
       `;
     }
 
+    function displayCorrectAnswer() {
+      if (typeof currentAnswer === 'number') {
+        return `${currentAnswer}`;
+      } else if (currentAnswer.num === 0) {
+        return `${currentAnswer.whole}`;
+      } else {
+        return `
+          <div class="fraction-display">
+            <div>${currentAnswer.whole}</div>
+            <div class="numerator">${currentAnswer.num}</div>
+            <div>${currentAnswer.den}</div>
+          </div>
+        `;
+      }
+    }
+
     function checkAnswer() {
       let correct = false;
 
@@ -192,7 +212,7 @@
         resultText.textContent = '正解！';
         correctStreak++;
       } else {
-        resultText.textContent = '不正解！';
+        resultText.innerHTML = `残念。正解は ${displayCorrectAnswer()} でした`;
         correctStreak = 0;
       }
     }
