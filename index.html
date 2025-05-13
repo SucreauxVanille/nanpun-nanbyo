@@ -32,8 +32,6 @@
     .fraction-display .numerator {
       border-bottom: 1px solid #000;
     }
-    .fraction-display .denominator {
-    }
     .answer-section {
       margin-top: 20px;
     }
@@ -100,21 +98,23 @@
       document.getElementById('result').textContent = '';
 
       if (type === 'minToSec') {
-        const m = Math.floor(Math.random() * 10);
-        const s = [0, 15, 20, 30, 45][Math.floor(Math.random() * 5)];
+        const m = Math.floor(Math.random() * 9) + 1; // 1から9分
+        const s = [15, 20, 30, 45][Math.floor(Math.random() * 4)]; // 15, 20, 30, 45秒のいずれか
         questionText = `${m}分${s}秒は何秒？`;
         answer = m * 60 + s;
         showIntegerInput();
 
       } else if (type === 'hourToMin') {
-        const h = Math.floor(Math.random() * 3);
-        const m = [0, 15, 20, 30, 45][Math.floor(Math.random() * 5)];
+        const h = Math.floor(Math.random() * 2) + 1; // 1から2時間
+        const m = [15, 20, 30, 45][Math.floor(Math.random() * 4)]; // 15, 20, 30, 45分のいずれか
         questionText = `${h}時間${m}分は何分？`;
         answer = h * 60 + m;
         showIntegerInput();
 
       } else if (type === 'secToMin') {
-        const totalSeconds = (Math.floor(Math.random() * 4 + 1)) * 60 + [15, 20, 30, 45][Math.floor(Math.random() * 4)];
+        const m = Math.floor(Math.random() * 9) + 1; // 1から9分
+        const s = [15, 20, 30, 45][Math.floor(Math.random() * 4)]; // 15, 20, 30, 45秒のいずれか
+        const totalSeconds = m * 60 + s;
         questionText = `${totalSeconds}秒は何分？`;
         const whole = Math.floor(totalSeconds / 60);
         const remainder = totalSeconds % 60;
@@ -123,7 +123,9 @@
         showFractionInput(answer.num !== 0);
 
       } else if (type === 'minToHour') {
-        const totalMinutes = (Math.floor(Math.random() * 2)) * 60 + [15, 20, 30, 45][Math.floor(Math.random() * 4)];
+        const h = Math.floor(Math.random() * 2) + 1; // 1から2時間
+        const m = [15, 20, 30, 45][Math.floor(Math.random() * 4)]; // 15, 20, 30, 45分のいずれか
+        const totalMinutes = h * 60 + m;
         questionText = `${totalMinutes}分は何時間？`;
         const whole = Math.floor(totalMinutes / 60);
         const remainder = totalMinutes % 60;
@@ -152,7 +154,7 @@
         return;
       }
 
-      document.getElementById('answerSection').innerHTML = `
+      document.getElementById('answerSection').inner
         <div class="mixed-input">
           <input id="wholeInput" type="number" placeholder="整数" class="input">
           <div class="fraction-input">
@@ -196,7 +198,7 @@
         resultText.innerHTML = `🎉 <span style="color: green; font-size: 24px; font-weight: bold;">正解！</span> 現在 <strong>${correctStreak}</strong> 問連続正解中！`;
       } else {
         correctStreak = 0;
-        resultText.textContent = `残念。正解は ${formatAnswer(currentAnswer)} だよ。`;
+        resultText.textContent = `ちがうよ。正解は ${formatAnswer(currentAnswer)} だよ。`;
       }
     }
 
