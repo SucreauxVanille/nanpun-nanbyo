@@ -30,10 +30,7 @@
     }
     .fraction-display {
       display: inline-block;
-      text-align: center;
-    }
-    .fraction-display .numerator {
-      border-bottom: 1px solid #000;
+      vertical-align: middle;
     }
     .answer-section {
       margin-top: 20px;
@@ -62,6 +59,10 @@
     .result {
       margin-top: 20px;
       font-size: 20px;
+    }
+    .streak {
+      color: orange;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -95,7 +96,7 @@
     }
 
     function getRandomMinuteOrSecond() {
-      return Math.floor(Math.random() * 59) + 1; // 1~59
+      return Math.floor(Math.random() * 59) + 1;
     }
 
     function generateQuestion(type) {
@@ -174,22 +175,22 @@
     }
 
     function displayCorrectAnswer() {
-  if (typeof currentAnswer === 'number') {
-    return `${currentAnswer}`;
-  } else if (currentAnswer.num === 0) {
-    return `${currentAnswer.whole}`;
-  } else {
-    return `
-      <span>
-        ${currentAnswer.whole}
-        <table style="display:inline-table; vertical-align:middle; font-size:inherit;">
-          <tr><td style="text-align:center; border-bottom:1px solid black;">${currentAnswer.num}</td></tr>
-          <tr><td style="text-align:center;">${currentAnswer.den}</td></tr>
-        </table>
-      </span>
-    `;
-  }
-}
+      if (typeof currentAnswer === 'number') {
+        return `${currentAnswer}`;
+      } else if (currentAnswer.num === 0) {
+        return `${currentAnswer.whole}`;
+      } else {
+        return `
+          <span>
+            ${currentAnswer.whole}
+            <table style="display:inline-table; vertical-align:middle; font-size:inherit;">
+              <tr><td style="text-align:center; border-bottom:1px solid black;">${currentAnswer.num}</td></tr>
+              <tr><td style="text-align:center;">${currentAnswer.den}</td></tr>
+            </table>
+          </span>
+        `;
+      }
+    }
 
     function checkAnswer() {
       let correct = false;
@@ -211,8 +212,12 @@
 
       const resultText = document.getElementById('result');
       if (correct) {
-        resultText.textContent = '正解！';
         correctStreak++;
+        if (correctStreak > 1) {
+          resultText.innerHTML = `<span class="streak">正解！${correctStreak}問連続正解中！</span>`;
+        } else {
+          resultText.textContent = '正解！';
+        }
       } else {
         resultText.innerHTML = `残念。正解は ${displayCorrectAnswer()} でした`;
         correctStreak = 0;
