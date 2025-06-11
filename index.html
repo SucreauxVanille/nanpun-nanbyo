@@ -117,13 +117,12 @@
     }
 
     function simplifyFraction(numerator, denominator) {
-      if (denominator === 0) return [0, 1];
       const g = gcd(numerator, denominator);
       return [numerator / g, denominator / g];
     }
 
     function generateRandomQuestion() {
-      const types = ['minToSec', 'hourToMin', 'secToMin', 'minToHour'];
+      const types = ['minToSec', 'hourToMin', 'secToMin', 'minToHour', 'mixedTimeToSeconds'];
       const randomType = types[Math.floor(Math.random() * types.length)];
       generateQuestion(randomType);
     }
@@ -187,6 +186,99 @@
       document.getElementById('question').textContent = questionText;
     }
 
+    function showIntegerInput(unit) {
+      document.getElementById('answerSection').innerHTML = `
+        <div><input id="intInput" type="number" class="input" autofocus><span class="unit-label">${unit}</span></div>
+        <br><button onclick="checkAnswer()" id="submitBtn">答える！</button>
+      `;
+    }
+
+    function showFractionInput(showFractionPart, unit) {
+      if (!showFractionPart) {
+        document.getElementById('answerSection').innerHTML = `
+          <div><input id="wholeInput" type="number" class="input" autofocus><span class="unit-label">${unit}</span></div>
+          <br><button onclick="checkAnswer()" id="submitBtn">答える！</button>
+        `;
+        return;
+      }
+
+      document.getElementById('answerSection').innerHTML = `
+        <div class="mixed-input">
+          <input id="wholeInput" type="number" class="input">
+          <div class="fraction-input">
+            <input id="numeratorInput" type="number" placeholder="分子">
+            <input id="denominatorInput" type="number" placeholder="分母">
+          </div>
+          <span class="unit-label">${unit}</span>
+        </div>
+        <br><button onclick="checkAnswer()" id="submitBtn">答える！</button>
+      `;
+    }
+
+    function displayCorrectAnswer() {
+      if (typeof currentAnswer === 'number') {
+        return `${currentAnswer}`;
+      } else if (currentAnswer.num === 0) {
+        return `${currentAnswer.whole}`;
+      } else {
+        return `
+          <span>
+            ${currentAnswer.whole}
+            <table style="display:inline-table; vertical-align:middle; font-size:inherit;">
+              <tr><td style="text-align:center; border-bottom:1px solid black;">${currentAnswer.num}</td></tr>
+              <tr><td style="text-align:center;">${currentAnswer.den}</td></tr>
+            </table>
+          </span>
+        `;
+      }
+    }
+
+    function checkAnswer() {
+      let correct = false;
+
+      if (typeof currentAnswer === 'number') {
+        const input = parseInt(document.getElementById('intInput').value, 10);
+        correct = input === currentAnswer;
+      } else {
+        const whole = parseInt(document.getElementById('wholeInput').value, 10);
+        if (currentAnswer.num === 0) {
+          correct = whole === currentAnswer.whole;
+        } else {
+          const numerator = parseInt(document.getElementById('numeratorInput').value, 10);
+          const denominator = parseInt(document.getElementById('denominatorInput').value, 10);
+          const [simpNum, simpDen] = simplifyFraction(numerator, denominator);
+          correct = (whole === currentAnswer.whole && simpNum === currentAnswer.num && simpDen === currentAnswer.den);
+        }
+      }
+
+      const resultText = document.getElementById('result');
+      const celebration = document.getElementById('celebration');
+      const streakMessage = document.getElementById('streakMessage');
+
+      if (correct) {
+        correctStreak++;
+        if (correctStreak > 1) {
+          resultText.innerHTML = `<span class="streak">正解！${correctStreak}問連続正解中！</span>`;
+        } else {
+          resultText.textContent = '正解！';
+        }
+        if (correctStreak >= 1) {
+          streakMessage.textContent = `${correctStreak}問連続正解中！`;
+        } else {
+          streakMessage.textContent = '';
+        }
+        if (correctStreak === 10) {
+          celebration.classList.add('show');
+          setTimeout(() => {
+            celebration.classList.remove('show');
+          }, 4000);
+        }
+      } else {
+        resultText.innerHTML = `残念。正解は ${displayCorrectAnswer()} でした`;
+        correctStreak = 0;
+        streakMessage.textContent = '';
+      }
+    }
   </script>
 </body>
 </html>
