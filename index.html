@@ -75,6 +75,15 @@
       color: orange;
       font-weight: bold;
     }
+    #celebration {
+      position: absolute;
+      top: 100px;
+      left: -200px;
+      transition: left 4s ease-in-out;
+    }
+    #celebration.show {
+      left: 100vw;
+    }
   </style>
 </head>
 <body>
@@ -85,6 +94,7 @@
   <div class="question" id="question"></div>
   <div class="answer-section" id="answerSection"></div>
   <div class="result" id="result"></div>
+  <img id="celebration" src="sugoi.png" alt="すごい！" width="150" height="150" />
 
   <script>
     let currentAnswer;
@@ -101,7 +111,7 @@
     }
 
     function generateRandomQuestion() {
-      const types = ['minToSec', 'hourToMin', 'secToMin', 'minToHour'];
+      const types = ['minToSec', 'hourToMin', 'secToMin', 'minToHour', 'mixedTimeToSeconds'];
       const randomType = types[Math.floor(Math.random() * types.length)];
       generateQuestion(randomType);
     }
@@ -151,6 +161,14 @@
         const [num, den] = simplifyFraction(remainder, 60);
         answer = { whole, num, den };
         showFractionInput(answer.num !== 0);
+
+      } else if (type === 'mixedTimeToSeconds') {
+        const h = Math.floor(Math.random() * 2) + 1;
+        const m = getRandomMinuteOrSecond();
+        const s = getRandomMinuteOrSecond();
+        questionText = `${h}時間${m}分${s}秒は何秒？`;
+        answer = h * 3600 + m * 60 + s;
+        showIntegerInput();
       }
 
       currentAnswer = answer;
@@ -222,12 +240,20 @@
       }
 
       const resultText = document.getElementById('result');
+      const celebration = document.getElementById('celebration');
+
       if (correct) {
         correctStreak++;
         if (correctStreak > 1) {
           resultText.innerHTML = `<span class="streak">正解！${correctStreak}問連続正解中！</span>`;
         } else {
           resultText.textContent = '正解！';
+        }
+        if (correctStreak === 10) {
+          celebration.classList.add('show');
+          setTimeout(() => {
+            celebration.classList.remove('show');
+          }, 4000);
         }
       } else {
         resultText.innerHTML = `残念。正解は ${displayCorrectAnswer()} でした`;
