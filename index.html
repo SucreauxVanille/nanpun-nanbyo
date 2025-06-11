@@ -84,6 +84,16 @@
     #celebration.show {
       left: 100vw;
     }
+    #streakMessage {
+      margin-top: 30px;
+      font-size: 18px;
+      color: orange;
+      font-weight: bold;
+    }
+    .unit-label {
+      margin-left: 10px;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
@@ -94,6 +104,7 @@
   <div class="question" id="question"></div>
   <div class="answer-section" id="answerSection"></div>
   <div class="result" id="result"></div>
+  <div id="streakMessage"></div>
   <img id="celebration" src="sugoi.png" alt="すごい！" width="150" height="150" />
 
   <script>
@@ -106,6 +117,7 @@
     }
 
     function simplifyFraction(numerator, denominator) {
+      if (denominator === 0) return [0, 1];
       const g = gcd(numerator, denominator);
       return [numerator / g, denominator / g];
     }
@@ -131,14 +143,14 @@
         const s = getRandomMinuteOrSecond();
         questionText = `${m}分${s}秒は何秒？`;
         answer = m * 60 + s;
-        showIntegerInput();
+        showIntegerInput('秒');
 
       } else if (type === 'hourToMin') {
         const h = Math.floor(Math.random() * 2) + 1;
         const m = getRandomMinuteOrSecond();
         questionText = `${h}時間${m}分は何分？`;
         answer = h * 60 + m;
-        showIntegerInput();
+        showIntegerInput('分');
 
       } else if (type === 'secToMin') {
         const m = Math.floor(Math.random() * 9) + 1;
@@ -149,7 +161,7 @@
         const remainder = totalSeconds % 60;
         const [num, den] = simplifyFraction(remainder, 60);
         answer = { whole, num, den };
-        showFractionInput(answer.num !== 0);
+        showFractionInput(answer.num !== 0, '分');
 
       } else if (type === 'minToHour') {
         const h = Math.floor(Math.random() * 2) + 1;
@@ -160,7 +172,7 @@
         const remainder = totalMinutes % 60;
         const [num, den] = simplifyFraction(remainder, 60);
         answer = { whole, num, den };
-        showFractionInput(answer.num !== 0);
+        showFractionInput(answer.num !== 0, '時間');
 
       } else if (type === 'mixedTimeToSeconds') {
         const h = Math.floor(Math.random() * 2) + 1;
@@ -168,79 +180,42 @@
         const s = getRandomMinuteOrSecond();
         questionText = `${h}時間${m}分${s}秒は何秒？`;
         answer = h * 3600 + m * 60 + s;
-        showIntegerInput();
+        showIntegerInput('秒');
       }
 
       currentAnswer = answer;
       document.getElementById('question').textContent = questionText;
     }
 
-    function showIntegerInput() {
-      document.getElementById('answerSection').innerHTML = `
-        <input id="intInput" type="number" class="input" autofocus>
-        <br><button onclick="checkAnswer()" id="submitBtn">答える！</button>
-      `;
-    }
-
-    function showFractionInput(showFractionPart) {
-      if (!showFractionPart) {
-        document.getElementById('answerSection').innerHTML = `
-          <input id="wholeInput" type="number" class="input" autofocus>
-          <br><button onclick="checkAnswer()" id="submitBtn">答える！</button>
-        `;
-        return;
-      }
-
-      document.getElementById('answerSection').innerHTML = `
-        <div class="mixed-input">
-          <input id="wholeInput" type="number" class="input">
-          <div class="fraction-input">
-            <input id="numeratorInput" type="number" placeholder="分子">
-            <input id="denominatorInput" type="number" placeholder="分母">
-          </div>
-        </div>
-        <br><button onclick="checkAnswer()" id="submitBtn">答える！</button>
-      `;
-    }
-
-    function displayCorrectAnswer() {
-      if (typeof currentAnswer === 'number') {
-        return `${currentAnswer}`;
-      } else if (currentAnswer.num === 0) {
-        return `${currentAnswer.whole}`;
-      } else {
-        return `
-          <span>
-            ${currentAnswer.whole}
-            <table style="display:inline-table; vertical-align:middle; font-size:inherit;">
-              <tr><td style="text-align:center; border-bottom:1px solid black;">${currentAnswer.num}</td></tr>
-              <tr><td style="text-align:center;">${currentAnswer.den}</td></tr>
-            </table>
-          </span>
-        `;
-      }
-    }
-
     function checkAnswer() {
       let correct = false;
 
-      if (typeof currentAnswer === 'number') {
-        const input = parseInt(document.getElementById('intInput').value, 10);
-        correct = input === currentAnswer;
-      } else {
+      if (typeof currentAnswer === 'object') {
         const whole = parseInt(document.getElementById('wholeInput').value, 10);
         if (currentAnswer.num === 0) {
           correct = whole === currentAnswer.whole;
         } else {
           const numerator = parseInt(document.getElementById('numeratorInput').value, 10);
           const denominator = parseInt(document.getElementById('denominatorInput').value, 10);
+          if (denominator === 0) {
+            alert('分母に0を入力しないでください');
+            return;
+          }
           const [simpNum, simpDen] = simplifyFraction(numerator, denominator);
-          correct = (whole === currentAnswer.whole && simpNum === currentAnswer.num && simpDen === currentAnswer.den);
+          correct = (
+            whole === currentAnswer.whole &&
+            simpNum === currentAnswer.num &&
+            simpDen === currentAnswer.den
+          );
         }
+      } else {
+        const input = parseInt(document.getElementById('intInput').value, 10);
+        correct = input === currentAnswer;
       }
 
       const resultText = document.getElementById('result');
       const celebration = document.getElementById('celebration');
+      const streakMessage = document.getElementById('streakMessage');
 
       if (correct) {
         correctStreak++;
@@ -249,6 +224,8 @@
         } else {
           resultText.textContent = '正解！';
         }
+        streakMessage.textContent = `${correctStreak}問連続正解中！`;
+
         if (correctStreak === 10) {
           celebration.classList.add('show');
           setTimeout(() => {
@@ -258,6 +235,7 @@
       } else {
         resultText.innerHTML = `残念。正解は ${displayCorrectAnswer()} でした`;
         correctStreak = 0;
+        streakMessage.textContent = '';
       }
     }
   </script>
