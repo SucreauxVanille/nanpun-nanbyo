@@ -123,7 +123,7 @@
     }
 
     function generateRandomQuestion() {
-      const types = ['minToSec', 'hourToMin', 'secToMin', 'minToHour', 'mixedTimeToSeconds'];
+      const types = ['minToSec', 'hourToMin', 'secToMin', 'minToHour'];
       const randomType = types[Math.floor(Math.random() * types.length)];
       generateQuestion(randomType);
     }
@@ -187,57 +187,6 @@
       document.getElementById('question').textContent = questionText;
     }
 
-    function checkAnswer() {
-      let correct = false;
-
-      if (typeof currentAnswer === 'object') {
-        const whole = parseInt(document.getElementById('wholeInput').value, 10);
-        if (currentAnswer.num === 0) {
-          correct = whole === currentAnswer.whole;
-        } else {
-          const numerator = parseInt(document.getElementById('numeratorInput').value, 10);
-          const denominator = parseInt(document.getElementById('denominatorInput').value, 10);
-          if (denominator === 0) {
-            alert('分母に0を入力しないでください');
-            return;
-          }
-          const [simpNum, simpDen] = simplifyFraction(numerator, denominator);
-          correct = (
-            whole === currentAnswer.whole &&
-            simpNum === currentAnswer.num &&
-            simpDen === currentAnswer.den
-          );
-        }
-      } else {
-        const input = parseInt(document.getElementById('intInput').value, 10);
-        correct = input === currentAnswer;
-      }
-
-      const resultText = document.getElementById('result');
-      const celebration = document.getElementById('celebration');
-      const streakMessage = document.getElementById('streakMessage');
-
-      if (correct) {
-        correctStreak++;
-        if (correctStreak > 1) {
-          resultText.innerHTML = `<span class="streak">正解！${correctStreak}問連続正解中！</span>`;
-        } else {
-          resultText.textContent = '正解！';
-        }
-        streakMessage.textContent = `${correctStreak}問連続正解中！`;
-
-        if (correctStreak === 10) {
-          celebration.classList.add('show');
-          setTimeout(() => {
-            celebration.classList.remove('show');
-          }, 4000);
-        }
-      } else {
-        resultText.innerHTML = `残念。正解は ${displayCorrectAnswer()} でした`;
-        correctStreak = 0;
-        streakMessage.textContent = '';
-      }
-    }
   </script>
 </body>
 </html>
